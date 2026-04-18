@@ -40,7 +40,7 @@ python -c "import urllib.request; urllib.request.urlretrieve('https://storage.go
 ### 6. Apply the Internal fix (Required for Python 3.13)
 This is a technical fix for a bug in the MediaPipe library on Windows. You **must** run this to avoid the "AttributeError: free" crash:
 ```powershell
-python -c "import os; p=r'venv\Lib\site-packages\mediapipe\tasks\python\core\mediapipe_c_bindings.py'; s=open(p).read(); old='  # Register \"free()\"\n  _shared_lib.free.argtypes = [ctypes.c_void_p]\n  _shared_lib.free.restype = None'; new='  # Register \"free()\" fallback\n  try:\n    _shared_lib.free.argtypes = [ctypes.c_void_p]\n    _shared_lib.free.restype = None\n  except AttributeError:\n    import ctypes as _ct; _crt = _ct.cdll.msvcrt if os.name == \"nt\" else _ct.CDLL(None); _crt.free.argtypes = [_ct.c_void_p]; _crt.free.restype = None; _shared_lib.free = _crt.free'; open(p, 'w').write(s.replace(old, new)); print('System Patched!')"
+python -c "import os; p=r'venv\Lib\site-packages\mediapipe\tasks\python\core\mediapipe_c_bindings.py'; s=open(p).read(); old='_shared_lib.free.argtypes = [ctypes.c_void_p]'; new='try:\n    _shared_lib.free.argtypes = [ctypes.c_void_p]\n    _shared_lib.free.restype = None\n  except AttributeError:\n    import ctypes as _ct; _crt = _ct.cdll.msvcrt if os.name == \"nt\" else _ct.CDLL(None); _crt.free.argtypes = [_ct.c_void_p]; _crt.free.restype = None; _shared_lib.free = _crt.free'; open(p, 'w').write(s.replace(old, new)) if old in s else print('Already Patched'); print('System Patched!')"
 ```
 
 ### 7. Run the App!
