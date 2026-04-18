@@ -11,29 +11,60 @@ def patch_mediapipe():
         return
 
     with open(path, 'r') as f:
-        content = f.read()
+        lines = f.readlines()
 
-    old_code = '_shared_lib.free.argtypes = [ctypes.c_void_p]'
-    
     # Check if already patched
-    if 'try:' in content and '_shared_lib.free.argtypes' in content and 'AttributeError' in content:
+    is_patched = False
+    for line in lines:
+        if ('try:' in line and '_shared_lib.free.argtypes' in line and 'AttributeError' in line) or \
+           ('_crt = ctypes.cdll.msvcrt' in line):
+            is_patched = True
+            break
+
+    if is_patched:
         print("MediaPipe is already patched! No changes needed.")
         return
 
-    if old_code not in content:
-        print("Error: Could not find the specific line to patch. The library version might be different.")
+    # Find the load_raw_library function and its return statement
+    new_lines = []
+    found_load_raw = False
+    patch_applied = False
+    
+    patch_code = [
+        '\n',
+        '  # Register "free()" — Python 3.13 may not expose \'free\' from the DLL directly.\n',
+        '  # Fall back to loading it from the C runtime (msvcrt on Windows).\n',
+        '  try:\n',
+        '    _shared_lib.free.argtypes = [ctypes.c_void_p]\n',
+        '    _shared_lib.free.restype = None\n',
+        '  except AttributeError:\n',
+        '    if os.name == "nt":\n',
+        '      _crt = ctypes.cdll.msvcrt\n',
+        '    else:\n',
+        '      _crt = ctypes.CDLL(None)\n',
+        '    _crt.free.argtypes = [ctypes.c_void_p]\n',
+        '    _crt.free.restype = None\n',
+        '    _shared_lib.free = _crt.free\n'
+    ]
+
+    for i in range(len(lines)):
+        line = lines[i]
+        if 'def load_raw_library' in line:
+            found_load_raw = True
+        
+        # If we find the return statement of load_raw_library, insert the patch before it
+        if found_load_raw and 'return _shared_lib' in line and not patch_applied:
+            new_lines.extend(patch_code)
+            patch_applied = True
+        
+        new_lines.append(line)
+
+    if not patch_applied:
+        print("Error: Could not find a suitable place to inject the patch. The library structure might be too different.")
         return
 
-    new_code = """try:
-    _shared_lib.free.argtypes = [ctypes.c_void_p]
-    _shared_lib.free.restype = None
-  except AttributeError:
-    import ctypes as _ct; _crt = _ct.cdll.msvcrt if os.name == "nt" else _ct.CDLL(None); _crt.free.argtypes = [_ct.c_void_p]; _crt.free.restype = None; _shared_lib.free = _crt.free"""
-
-    new_content = content.replace(old_code, new_code)
-
     with open(path, 'w') as f:
-        f.write(new_content)
+        f.writelines(new_lines)
     
     print("Success: MediaPipe C Bindings have been patched for Python 3.13!")
 

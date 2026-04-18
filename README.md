@@ -32,10 +32,12 @@ pip install opencv-python keyboard mediapipe numpy pygame tensorflow flask
 ```
 
 ### 5. Download the AI Tracking Model
-The app needs this "brain" file to see your hands. Copy and paste this:
+The app needs these "brain" files in a `models` folder. Run this command to create the folder and download the tracking model:
 ```powershell
-python -c "import urllib.request; urllib.request.urlretrieve('https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', 'hand_landmarker.task'); print('Model Ready!')"
+mkdir models -ErrorAction SilentlyContinue
+python -c "import urllib.request; urllib.request.urlretrieve('https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', 'models/hand_landmarker.task'); print('Model Ready!')"
 ```
+> **Note**: This repo already contains the Alphabet and Digit recognition models in the `models/` folder.
 
 ### 6. Apply the Internal Fix (Required for Python 3.13)
 I've provided a script to automatically fix a bug in the MediaPipe library on Windows. Run this:

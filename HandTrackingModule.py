@@ -13,7 +13,7 @@ class handDetector():
         self.trackCon = trackCon
 
         # Using MediaPipe Tasks API instead of legacy solutions
-        base_options = python.BaseOptions(model_asset_path='hand_landmarker.task')
+        base_options = python.BaseOptions(model_asset_path='models/hand_landmarker.task')
         options = vision.HandLandmarkerOptions(
             base_options=base_options,
             running_mode=vision.RunningMode.IMAGE,
