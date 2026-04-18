@@ -35,8 +35,9 @@ Over the course of this setup, over **1,500 lines of code** (including core repo
 | `VirtualPainter.py` | 220+ | Loop Decoupling / CV2 Stability Patch |
 | `app.py` | 30+ | Interface exposure (0.0.0.0 Binding) |
 | `mediapipe (internal)` | 120+ | C-Library Memory Patch |
+| `models/` | - | Organized & renamed CNN/Task models |
 | `README.md` | 100+ | Full Technical Documentation Overhaul |
-| **Total Scope** | **~600+ source lines** | **5 Major System Fixes** |
+| **Total Scope** | **~600+ source lines** | **6 Major System Fixes** |
 
 ---
 
