@@ -36,7 +36,7 @@ def strt():
 
     ############## PyGame Attributes ###############
     pygame.init()
-    FONT = pygame.font.SysFont('freesansbold.tff', 18)
+    FONT = pygame.font.SysFont('Arial', 18)
     DISPLAYSURF = pygame.display.set_mode((width, height),flags=pygame.HIDDEN)
     pygame.display.set_caption("Digit Board")
     number_xcord = []
@@ -78,6 +78,9 @@ def strt():
 
     while True:
         SUCCESS, img = cap.read()
+        if not SUCCESS:
+            print("Failed to grab frame from camera")
+            break
         img = cv2.flip(img,1)
 
         img = detector.findHands(img)
@@ -216,6 +219,14 @@ def strt():
         pygame.display.update()
         # cv2.imshow("Paint",imgCanvas)
         cv2.imshow("Image",img)
-        cv2.waitKey(1)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-strt()
+    cap.release()
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    strt()

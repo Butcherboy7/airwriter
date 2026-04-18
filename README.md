@@ -1,35 +1,66 @@
-# Air-Writing-and-Character-Recognition
-Basically it's open cv python project where user can draw any alphabets or number in the frame using his index finger tip and after that our model can recognize which alphabets or number is written.
+# Air-Writing-and-Character-Recognition ✍️
 
-# How To Run
-1. Make sure you have Already installed Python
-2. First Open the CMD and open this Directory and after that run this command 
+Draw letters and numbers in the air using your index finger — our AI models recognize them in real-time.
 
-    pip install -r requirement.txt
-    
-    after some time all the required packages will be installed
-3. Now run the app.py file
-    
-    python app.py
-   
-   wait for server to run successfully
-4. Goto the browser and open
-    
-    http://127.0.0.1:5000/
-    
-# Screen Shots
-Hand Detect:-
+> **Modern System Support**: This version is specially patched to work with **Python 3.12 and 3.13** on Windows.
 
-![image](https://user-images.githubusercontent.com/59532169/169994824-f118affc-4dfb-4886-803a-c0a6dc57eb06.png) 
+---
 
-Recognize Number:-
+## 🛠️ Step-by-Step Installation (Spoon-Fed)
 
-![image](https://user-images.githubusercontent.com/59532169/169995398-81ec6310-b0ac-441b-adad-0218b4318705.png)
+### 1. Open your Terminal
+On Windows, press the `Start` button, type **PowerShell**, and open it. Do **not** use "Git Bash" for these specific commands as some paths might differ.
 
-Recognize Alphabet:-
+### 2. Clone the Project
+Copy and paste this into PowerShell:
+```powershell
+git clone https://github.com/prnvbaraiya/Air-Writing-and-Character-Recognition.git
+cd Air-Writing-and-Character-Recognition
+```
 
-![image](https://user-images.githubusercontent.com/59532169/169995526-c736abf1-2ba2-4d2a-8a74-01b99ab7b271.png)
+### 3. Create a Virtual Environment
+This keeps the project clean. Copy these two lines:
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+> **Note**: If you get a "scripts disabled" error, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process` and try the second line again.
 
-Demo Video:-
+### 4. Install the Modern Dependencies
+```powershell
+pip install opencv-python keyboard mediapipe numpy pygame tensorflow flask
+```
 
-https://user-images.githubusercontent.com/59532169/169997357-f720a0b4-f534-42fe-9042-764af3b2bb18.mp4
+### 5. Download the AI Tracking Model
+The app needs this "brain" file to see your hands. Copy and paste this:
+```powershell
+python -c "import urllib.request; urllib.request.urlretrieve('https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', 'hand_landmarker.task'); print('Model Ready!')"
+```
+
+### 6. Apply the Internal fix (Required for Python 3.13)
+This is a technical fix for a bug in the MediaPipe library on Windows. You **must** run this to avoid the "AttributeError: free" crash:
+```powershell
+python -c "import os; p=r'venv\Lib\site-packages\mediapipe\tasks\python\core\mediapipe_c_bindings.py'; s=open(p).read(); old='  # Register \"free()\"\n  _shared_lib.free.argtypes = [ctypes.c_void_p]\n  _shared_lib.free.restype = None'; new='  # Register \"free()\" fallback\n  try:\n    _shared_lib.free.argtypes = [ctypes.c_void_p]\n    _shared_lib.free.restype = None\n  except AttributeError:\n    import ctypes as _ct; _crt = _ct.cdll.msvcrt if os.name == \"nt\" else _ct.CDLL(None); _crt.free.argtypes = [_ct.c_void_p]; _crt.free.restype = None; _shared_lib.free = _crt.free'; open(p, 'w').write(s.replace(old, new)); print('System Patched!')"
+```
+
+### 7. Run the App!
+```powershell
+python app.py
+```
+
+Now, go to your browser and open: **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
+
+---
+
+## 🎮 Finger Controls
+
+- **Index Finger (☝️)**: Start drawing on the screen.
+- **Index + Middle (✌️)**: "Selection Mode" — use this to move your cursor without drawing (to select colors or erase).
+- **Keyboard A**: Alphabet Recognition.
+- **Keyboard N**: Number Recognition.
+- **Keyboard O**: Turn recognition OFF (Standard Paint).
+
+---
+
+## 🔧 Behind the Scenes
+I had to perform significant engineering to make this compatible with Python 3.13, including re-writing the tracking module and patching the core MediaPipe C-bindings. Full details are in [PROJECT_ISSUES_AND_SOLUTIONS.md](./PROJECT_ISSUES_AND_SOLUTIONS.md).
