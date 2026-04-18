@@ -14,8 +14,8 @@ On Windows, press the `Start` button, type **PowerShell**, and open it. Do **not
 ### 2. Clone the Project
 Copy and paste this into PowerShell:
 ```powershell
-git clone https://github.com/prnvbaraiya/Air-Writing-and-Character-Recognition.git
-cd Air-Writing-and-Character-Recognition
+git clone https://github.com/Butcherboy7/airwriter
+cd airwriter
 ```
 
 ### 3. Create a Virtual Environment
@@ -37,10 +37,10 @@ The app needs this "brain" file to see your hands. Copy and paste this:
 python -c "import urllib.request; urllib.request.urlretrieve('https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', 'hand_landmarker.task'); print('Model Ready!')"
 ```
 
-### 6. Apply the Internal fix (Required for Python 3.13)
-This is a technical fix for a bug in the MediaPipe library on Windows. You **must** run this to avoid the "AttributeError: free" crash:
+### 6. Apply the Internal Fix (Required for Python 3.13)
+I've provided a script to automatically fix a bug in the MediaPipe library on Windows. Run this:
 ```powershell
-python -c "import os; p=r'venv\Lib\site-packages\mediapipe\tasks\python\core\mediapipe_c_bindings.py'; s=open(p).read(); old='_shared_lib.free.argtypes = [ctypes.c_void_p]'; new='try:\n    _shared_lib.free.argtypes = [ctypes.c_void_p]\n    _shared_lib.free.restype = None\n  except AttributeError:\n    import ctypes as _ct; _crt = _ct.cdll.msvcrt if os.name == \"nt\" else _ct.CDLL(None); _crt.free.argtypes = [_ct.c_void_p]; _crt.free.restype = None; _shared_lib.free = _crt.free'; open(p, 'w').write(s.replace(old, new)) if old in s else print('Already Patched'); print('System Patched!')"
+python patch_mediapipe.py
 ```
 
 ### 7. Run the App!
